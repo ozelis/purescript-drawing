@@ -22,6 +22,7 @@ import Data.Foldable (class Foldable, for_)
 import Data.List (List(..), singleton, (:), fromFoldable)
 import Data.Maybe (Maybe(..))
 import Effect (Effect)
+import Graphics.Canvas(BezierCurve)
 import Graphics.Canvas as Canvas
 import Graphics.Drawing.Font (Font, fontString)
 import Graphics.Drawing.Font (Font) as Font
@@ -34,6 +35,8 @@ type Point = { x :: Number, y :: Number }
 data Shape
   -- | A path is a list of points joined by line segments
   = Path Boolean (List Point)
+  -- | A curve is a list of BezierPoints joined together
+  | Curve Boolean (List BezierCurve)
   -- | A rectangle consisting of the numbers left, top, width and height
   | Rectangle Canvas.Rectangle
   -- | A circular arc consisting of the numbers center-x, center-y, start angle, end angle and radius
@@ -55,9 +58,16 @@ instance monoidShape :: Monoid Shape where
 path :: forall f. (Foldable f) => f Point -> Shape
 path = Path false <<< fromFoldable
 
+-- | Create curve
+curve :: forall f (Foldable f) => f BezierCurve -> Shape
+curve = Curve false <<< fromFoldable
+
 -- | Create a _closed_ path.
 closed :: forall f. (Foldable f) => f Point -> Shape
 closed = Path true <<< fromFoldable
+
+-- | Create a _closed_ curve.
+closedCurve :: forall f (Foldable f) => f BezierCurve -> Shape
 
 -- | Create a rectangle from the left, top, width and height parameters.
 rectangle :: Number -> Number -> Number -> Number -> Shape
@@ -270,6 +280,10 @@ render ctx = go
   renderShape (Path cl (Cons p rest)) = do
     _ <- Canvas.moveTo ctx p.x p.y
     for_ rest \pt -> Canvas.lineTo ctx pt.x pt.y
+    when cl $ void $ Canvas.closePath ctx
+  renderShape (Curve _ Nil) = pure unit
+  renderShape (Path cl lst) = do
+    for_ lst (Canvas.bezierCurveTo ctx)
     when cl $ void $ Canvas.closePath ctx
   renderShape (Rectangle r) = void $ Canvas.rect ctx r
   renderShape (Arc a) = void $ Canvas.arc ctx a
