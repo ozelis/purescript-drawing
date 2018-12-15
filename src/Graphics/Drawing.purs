@@ -2,7 +2,7 @@
 
 module Graphics.Drawing
   ( Point
-  , Shape, path, closed, rectangle, circle, arc
+  , Shape, path, closed, curve, closedCurve, rectangle, circle, arc
   , FillStyle, fillColor
   , OutlineStyle, outlineColor, lineWidth
   , Shadow, shadowOffset, shadowBlur, shadowColor, shadow
