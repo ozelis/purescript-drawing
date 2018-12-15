@@ -282,7 +282,7 @@ render ctx = go
     for_ rest \pt -> Canvas.lineTo ctx pt.x pt.y
     when cl $ void $ Canvas.closePath ctx
   renderShape (Curve _ Nil) = pure unit
-  renderShape (Path cl lst) = do
+  renderShape (Curve cl lst) = do
     for_ lst (Canvas.bezierCurveTo ctx)
     when cl $ void $ Canvas.closePath ctx
   renderShape (Rectangle r) = void $ Canvas.rect ctx r
