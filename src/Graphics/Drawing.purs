@@ -59,7 +59,7 @@ path :: forall f. (Foldable f) => f Point -> Shape
 path = Path false <<< fromFoldable
 
 -- | Create curve
-curve :: forall f (Foldable f) => f BezierCurve -> Shape
+curve :: forall f. (Foldable f) => f BezierCurve -> Shape
 curve = Curve false <<< fromFoldable
 
 -- | Create a _closed_ path.
