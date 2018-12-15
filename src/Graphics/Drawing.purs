@@ -35,8 +35,8 @@ type Point = { x :: Number, y :: Number }
 data Shape
   -- | A path is a list of points joined by line segments
   = Path Boolean (List Point)
-  -- | A curve is a list of BezierPoints joined together
-  | Curve Boolean (List BezierCurve)
+  -- | A curve is a list of BezierCurves joined together
+  | Curve Boolean Point (List BezierCurve)
   -- | A rectangle consisting of the numbers left, top, width and height
   | Rectangle Canvas.Rectangle
   -- | A circular arc consisting of the numbers center-x, center-y, start angle, end angle and radius
@@ -59,15 +59,16 @@ path :: forall f. (Foldable f) => f Point -> Shape
 path = Path false <<< fromFoldable
 
 -- | Create a curve.
-curve :: forall f. (Foldable f) => f BezierCurve -> Shape
-curve = Curve false <<< fromFoldable
+curve :: forall f. (Foldable f) => Point -> f BezierCurve -> Shape
+curve pt = Curve false pt <<< fromFoldable
 
 -- | Create a _closed_ path.
 closed :: forall f. (Foldable f) => f Point -> Shape
 closed = Path true <<< fromFoldable
 
 -- | Create a _closed_ curve.
-closedCurve :: forall f (Foldable f) => f BezierCurve -> Shape
+closedCurve :: forall f. (Foldable f) => Point -> f BezierCurve -> Shape
+closedCurve pt = Curve true pt <<< fromFoldable
 
 -- | Create a rectangle from the left, top, width and height parameters.
 rectangle :: Number -> Number -> Number -> Number -> Shape
@@ -281,8 +282,10 @@ render ctx = go
     _ <- Canvas.moveTo ctx p.x p.y
     for_ rest \pt -> Canvas.lineTo ctx pt.x pt.y
     when cl $ void $ Canvas.closePath ctx
-  renderShape (Curve _ Nil) = pure unit
-  renderShape (Curve cl lst) = do
+  renderShape (Curve _ _ Nil) = pure unit
+  renderShape (Curve cl pt lst) = do
+    _ <- Canvas.beginPath ctx
+    _ <- Canvas.moveTo ctx pt.x pt.y
     for_ lst (Canvas.bezierCurveTo ctx)
     when cl $ void $ Canvas.closePath ctx
   renderShape (Rectangle r) = void $ Canvas.rect ctx r
