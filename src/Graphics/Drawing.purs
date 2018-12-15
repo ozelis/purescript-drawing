@@ -58,7 +58,7 @@ instance monoidShape :: Monoid Shape where
 path :: forall f. (Foldable f) => f Point -> Shape
 path = Path false <<< fromFoldable
 
--- | Create curve
+-- | Create a curve.
 curve :: forall f. (Foldable f) => f BezierCurve -> Shape
 curve = Curve false <<< fromFoldable
 

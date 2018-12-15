@@ -13,7 +13,7 @@
   ],
   "repository": {
     "type": "git",
-    "url": "git://github.com/paf31/purescript-drawing.git"
+    "url": "git://github.com/ozelis/purescript-drawing.git"
   },
   "dependencies": {
     "purescript-canvas": "^4.0.0",
